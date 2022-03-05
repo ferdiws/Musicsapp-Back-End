@@ -52,7 +52,7 @@ class AlbumsHandler {
       const { id } = request.params;
       const album = await this._service.getAlbumById(id);
       const songs = await this._service.getSongById(id);
-      if (!songs.length) {
+      if (songs.length) {
         album.songs = songs;
       }
       return {
