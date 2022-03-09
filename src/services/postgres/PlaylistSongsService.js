@@ -36,7 +36,7 @@ class PlaylistSongsService {
     }
   }
 
-  async searchSongById(songId) {
+  async verifySongAvaibility(songId) {
     const query = {
       text: 'SELECT id, title, year, performer, genre, duration, album_id FROM songs WHERE id = $1',
       values: [songId],
@@ -49,19 +49,6 @@ class PlaylistSongsService {
     }
   }
 
-  async searchPlaylistById(playlistId) {
-    const query = {
-      text: 'SELECT * FROM playlists WHERE id = $1',
-      values: [playlistId],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Playlist tidak ditemukan');
-    }
-  }
-//adad
   async getSongsFromPlaylist(id, userId) {
     await this._playlistsService.verifyPlaylistIsExist(id);
     await this._playlistsService.verifyPlaylistAccess(id, userId);

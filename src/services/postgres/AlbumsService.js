@@ -2,7 +2,6 @@ const { Pool } = require('pg');
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const { mapAlbumDBToModel } = require('../../albumUtils');
-const { mapSongDBToModel } = require('../../songUtils');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
 class AlbumsService {
@@ -13,11 +12,10 @@ class AlbumsService {
   async addAlbum({ name, year }) {
     const id = `album-${nanoid(16)}`;
     const createdAt = new Date().toISOString();
-    const updatedAt = createdAt;
 
     const query = {
       text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING id',
-      values: [id, name, year, createdAt, updatedAt],
+      values: [id, name, year, createdAt, createdAt],
     };
 
     const result = await this._pool.query(query);
@@ -50,7 +48,7 @@ class AlbumsService {
     };
     const result = await this._pool.query(query);
 
-    return result.rows.map(mapSongDBToModel);
+    return result.rows;
   }
 
   async editAlbumById(id, { name, year }) {
