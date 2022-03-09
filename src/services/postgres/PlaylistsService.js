@@ -32,8 +32,9 @@ class PlaylistsService {
   async getPlaylists(owner) {
     const query = {
       text: `SELECT playlists.id, playlists.name, users.username FROM playlists
-      LEFT JOIN users ON users.id = playlists.owner
-      WHERE playlists.owner = $1 OR users.id = $1`,
+      INNER JOIN users ON playlists.owner = users.id  
+      LEFT JOIN collaborations ON collaborations.playlist_id = playlists.id
+      WHERE playlists.owner = $1 OR collaborations.user_id = $1`,
       values: [owner],
     };
     const result = await this._pool.query(query);
@@ -81,7 +82,20 @@ class PlaylistsService {
     const result = await this._pool.query(query);
 
     if (!result.rows[0]) {
-      throw new AuthorizationError('Anda bukan pemilik/collaborator playlist ini');
+      throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+    }
+  }
+
+  async verifyPlaylistIsExist(playlistId) {
+    const query = {
+      text: 'SELECT * FROM playlists WHERE id = $1',
+      values: [playlistId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Playlist tidak ditemukan');
     }
   }
 }
