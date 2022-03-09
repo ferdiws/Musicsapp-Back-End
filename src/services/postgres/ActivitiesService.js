@@ -13,8 +13,8 @@ class ActivitiesService {
       playlist_song_activities.user_id = users.id WHERE playlist_song_activities.playlist_id = $1`,
       values: [playlistId],
     };
-    const result = await this._pool.query(query);
-    return result.rows;
+    const { rows } = await this._pool.query(query);
+    return rows;
   }
 }
 
