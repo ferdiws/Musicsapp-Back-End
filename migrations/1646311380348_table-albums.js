@@ -9,12 +9,13 @@ exports.up = (pgm) => {
       notNull: true,
     },
     year: {
-      type: 'INTEGER',
+      type: 'SMALLINT',
       notNull: true,
     },
     created_at: {
       type: 'TEXT',
       notNull: true,
+      default: pgm.func('current_timestamp'),
     },
     updated_at: {
       type: 'TEXT',

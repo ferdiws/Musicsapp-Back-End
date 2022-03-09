@@ -1,10 +1,9 @@
 const ClientError = require('../../exceptions/ClientError');
 
 class ActivitiesHandler {
-  constructor(activitiesService, playlistsService, validator) {
+  constructor(activitiesService, playlistsService) {
     this._activitiesService = activitiesService;
     this._playlistsService = playlistsService;
-    this._validator = validator;
 
     this.getActivities = this.getActivities.bind(this);
   }
@@ -12,10 +11,10 @@ class ActivitiesHandler {
   async getActivities(request, h) {
     try {
       const { id } = request.params;
-      const { id: credentialId } = request.auth.credentials;
-      await this._playlistsService.verifyPlaylistOwner(id, credentialId);
+      const { id: owner } = request.auth.credentials;
+      await this._playlistsService.verifyPlaylistOwner(id, owner);
       const playlistId = id;
-      const activities = await this._activitiesService.getActivities(id);
+      const activities = await this._activitiesService.getActivities(playlistId);
 
       const response = h.response({
         status: 'success',
@@ -24,7 +23,7 @@ class ActivitiesHandler {
           activities,
         },
       });
-      response.code(201);
+      response.code(200);
       return response;
     } catch (error) {
       if (error instanceof ClientError) {
