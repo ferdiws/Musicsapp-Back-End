@@ -17,6 +17,7 @@ const activities = require('./api/playlistActivities');
 const collaborations = require('./api/collaborations');
 const _exports = require('./api/exports');
 const uploads = require('./api/uploads');
+const likes = require('./api/likes');
 const AlbumsService = require('./services/postgres/AlbumsService');
 const SongsService = require('./services/postgres/SongsService');
 const UsersService = require('./services/postgres/UsersService');
@@ -27,6 +28,8 @@ const ActivitiesService = require('./services/postgres/ActivitiesService');
 const CollaborationsService = require('./services/postgres/CollaborationsService');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 const StorageService = require('./services/storage/StorageService');
+const LikesService = require('./services/postgres/LikesService');
+const CacheService = require('./services/redis/CacheService');
 const AlbumsValidator = require('./validator/albums');
 const SongsValidator = require('./validator/songs');
 const UsersValidator = require('./validator/users');
@@ -39,6 +42,7 @@ const UploadsValidator = require('./validator/uploads');
 const TokenManager = require('./tokenize/TokenManager');
 
 const init = async () => {
+  const cacheService = new CacheService();
   const collaborationsService = new CollaborationsService();
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
@@ -47,6 +51,7 @@ const init = async () => {
   const playlistsService = new PlaylistsService(collaborationsService);
   const playlistSongsService = new PlaylistSongsService(playlistsService);
   const activitiesService = new ActivitiesService();
+  const likesService = new LikesService(cacheService);
   const storageService = new StorageService(path.resolve(__dirname, 'api/uploads/file/covers'));
 
   const server = Hapi.server({
@@ -158,6 +163,12 @@ const init = async () => {
         service: storageService,
         albumsService,
         validator: UploadsValidator,
+      },
+    },
+    {
+      plugin: likes,
+      options: {
+        service: likesService,
       },
     },
   ]);
